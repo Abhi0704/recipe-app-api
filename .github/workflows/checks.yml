@@ -1,0 +1,24 @@
+---
+name: Checks
+
+on: [push]
+
+jobs: 
+  test-lint:
+    name: Test and Lint
+    runs-on: ubuntu-20.04 #this is a runner OS that runs our job
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with: 
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    #cehckout action provided by github for free, checks the code out inside a github actions job because the code
+    #is not checked out by default inside the job that is been ran, because certain jobs don't require the code
+    #but in this project i need to checkout the code for linting and testing
+      - name: Checkout 
+        uses: actions/checkout@v2
+      - name: Test
+        run: docker-compose run --rm app sh -c "python manage.py test" #this command runs unit test for the project
+      - name: Lint
+        run: docker-compose run --rm app sh -c "flake8" #this command runs the linting for the project
